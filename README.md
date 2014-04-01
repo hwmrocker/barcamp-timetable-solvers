@@ -19,5 +19,6 @@ TODO
 ----
 
 * print best timetable
-* check out different solver algorithms 
+* check out different solver algorithms
+* make better use of multi processors
 
