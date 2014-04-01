@@ -2,7 +2,7 @@
 """opty
 
 Usage:
-    opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS]
+    opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS]
 
 Options:
     -s SESSIONS, --sessions SESSIONS
@@ -21,6 +21,9 @@ Options:
                         path to a yaml file containing time slots 
                         informations
                         [default: timeslots.yaml]
+    -i ITERATIONS, --iterations ITERATIONS
+                        Number of iterations to guess a good solution
+                        [default: 100000]
 """
 
 #TODO accept more than one speaker
@@ -121,8 +124,7 @@ def main(args):
     #https://en.wikipedia.org/wiki/Simulated_annealing
     # possible not usefull
 
-    # TODO make range parameter accessable from cli
-    for i in range(100000):
+    for i in range(args['--iterations']):
         solution = getRandomSolution(sessions, rooms, timeslots)
         best_rank = max(best_rank, getRank(solution, desires))
     print(best_rank)
