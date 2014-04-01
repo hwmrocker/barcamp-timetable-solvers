@@ -18,7 +18,6 @@ Modify the yaml files, they describe the available timeslots, rooms, sessions, a
 TODO
 ----
 
-* print best timetable
 * check out different solver algorithms
 * make better use of multi processors
 

@@ -32,6 +32,7 @@ from docopt import docopt
 from collections import defaultdict
 import yaml
 import random
+import functools
 
 def load(filename):
     with open(filename) as fh:
@@ -94,9 +95,6 @@ def getRandomSolution(sessions, rooms, timeslots):
             break
     return solution
 
-
-
-
 def getRank(solution, desires):
     points = 0
     # it does not seem to be faster this way :P
@@ -113,21 +111,32 @@ def getRank(solution, desires):
 
     return points
 
+def printTimetable(solution):
+    timeslots = defaultdict(list)
+    for session, (timeslot, room) in solution.iteritems():
+        timeslots[timeslot].append((room, session))
+    for timeslot in sorted(timeslots.keys()):
+        print("%s:" % timeslot)
+        for room, session in sorted(timeslots[timeslot]):
+            print("   %s: %s" % (room, session))
+        print("")
+
 def main(args):
     sessions = load(args["--sessions"])
     desires = load(args["--desires"])
     rooms = load(args["--rooms"])
     timeslots = load(args["--time-slots"])
-
-    best_rank = 0
+    iterations = int(args['--iterations'])
+    best_solution = getRandomSolution(sessions, rooms, timeslots)
     #use simulated annealing
     #https://en.wikipedia.org/wiki/Simulated_annealing
     # possibly not usefull
 
-    for i in range(args['--iterations']):
+    cmp_func = functools.partial(getRank, desires=desires)
+    for i in range(iterations):
         solution = getRandomSolution(sessions, rooms, timeslots)
-        best_rank = max(best_rank, getRank(solution, desires))
-    print(best_rank)
+        best_solution = max(best_solution, solution, key=cmp_func)
+    printTimetable(best_solution)
 
 
 if __name__ == "__main__":
