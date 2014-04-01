@@ -122,7 +122,7 @@ def main(args):
     best_rank = 0
     #use simulated annealing
     #https://en.wikipedia.org/wiki/Simulated_annealing
-    # possible not usefull
+    # possibly not usefull
 
     for i in range(args['--iterations']):
         solution = getRandomSolution(sessions, rooms, timeslots)
