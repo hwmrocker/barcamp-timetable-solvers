@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+"""opty
+
+Usage:
+    opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS]
+
+Options:
+    -s SESSIONS, --sessions SESSIONS
+                        path to a yaml file containing a mapping of
+                        session names to a list of speaker
+                        [default: sessions.yaml]
+    -d DESIRES, --desires DESIRES
+                        path to a yaml file containing a mapping of
+                        users and their desired sessions (ordered
+                        by interest, most interesting first)
+                        [default: desires.yaml]
+    -r ROOMS, --rooms ROOMS
+                        path to a yaml file containing room definitions
+                        [default: rooms.yaml]
+    -t TIMESLOTS, --time-slots TIMESLOTS
+                        path to a yaml file containing time slots 
+                        informations
+                        [default: timeslots.yaml]
+"""
+
+#TODO accept more than one speaker
+
+from docopt import docopt
+from collections import defaultdict
+import yaml
+import random
+
+def load(filename):
+    with open(filename) as fh:
+        return yaml.load(fh)
+
+def getSolution(sessions, rooms, timeslots):
+    def getRooms(options, rooms):
+        return zip(rooms,[10]*len(rooms))
+    session_names = sessions.keys()
+    # solution=defaultdict(lambda:defaultdict(None))
+    # solution=defaultdict(dict)
+    solution = {}
+
+    # print("%r"%rooms)
+    for slot, options in timeslots.items():
+        for room, size in getRooms(options, rooms):
+            if not session_names:
+                # solution[slot][room] = None
+                break
+            else:
+                solution[session_names.pop()] = (slot, room) 
+
+    return solution
+
+def getRandomSolution(sessions, rooms, timeslots):
+    user_to_slot = defaultdict(set)
+    booked = defaultdict(list)
+    room_names = rooms.keys()
+    session_names = sessions.keys()
+    timeslot_names = timeslots.keys()
+    solution = {}
+
+    def getRandomTimeslotRoomForUsers(users):
+        blocked_timeslots = set()
+        for user in users:
+            blocked_timeslots = blocked_timeslots.union(user_to_slot[user])
+        slots_to_choose_from = list(set(timeslot_names) - blocked_timeslots)
+        if not slots_to_choose_from:
+            # This set of users cannot give a talk together
+            # We don't want to stop the building process yet
+            # so we just return None, None
+            return None, None
+        timeslot_name = random.choice(slots_to_choose_from)
+        room_name = room_names[len(booked[timeslot_name])]
+        booked[timeslot_name].append(room_name)
+        if len(booked[timeslot_name]) == len(room_names):
+            # clean up, we cannot use this time slot anylonger
+            timeslot_names.remove(timeslot_name)
+        return timeslot_name, room_name
+
+    while session_names:
+        session_name = session_names.pop(
+            random.randrange(0,len(session_names))
+        )
+        users = sessions[session_name]
+        try:
+            solution[session_name] = getRandomTimeslotRoomForUsers(users)
+        except IndexError as e:
+            # we have more sessions than timeslots
+            break
+    return solution
+
+
+
+
+def getRank(solution, desires):
+    points = 0
+    # it does not seem to be faster this way :P
+    # pointlist = [8,7,6,5,4,3,2,1] + [1]*100
+    for user, sessions in desires.iteritems():
+        blocked_timeslots = []
+        for session, point in zip(sessions, #pointlist 
+            [8,7,6,5,4,3,2,1] + [1]*max(0,len(sessions)-8) # points for sessions even if you have more than 8
+        ):
+            slot, room = solution[session]
+            if slot not in blocked_timeslots:
+                blocked_timeslots.append(slot)
+                points += point   
+
+    return points
+
+def main(args):
+    sessions = load(args["--sessions"])
+    desires = load(args["--desires"])
+    rooms = load(args["--rooms"])
+    timeslots = load(args["--time-slots"])
+
+    best_rank = 0
+    #use simulated annealing
+    #https://en.wikipedia.org/wiki/Simulated_annealing
+    # possible not usefull
+
+    # TODO make range parameter accessable from cli
+    for i in range(100000):
+        solution = getRandomSolution(sessions, rooms, timeslots)
+        best_rank = max(best_rank, getRank(solution, desires))
+    print(best_rank)
+
+
+if __name__ == "__main__":
+    args = docopt(__doc__, version="opty-0.1")
+    print(args)
+    main(args)
