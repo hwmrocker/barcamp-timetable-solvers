@@ -20,4 +20,5 @@ TODO
 
 * check out different solver algorithms
 * make better use of multi processors
+* use kennethreitz' clint
 

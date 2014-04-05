@@ -31,75 +31,19 @@ Options:
 from docopt import docopt
 from collections import defaultdict
 import yaml
-import random
 import functools
+from solvers.random_solver import RandomSolver
 
 def load(filename):
     with open(filename) as fh:
         return yaml.load(fh)
 
-def getSolution(sessions, rooms, timeslots):
-    def getRooms(options, rooms):
-        return zip(rooms,[10]*len(rooms))
-    session_names = sessions.keys()
-    # solution=defaultdict(lambda:defaultdict(None))
-    # solution=defaultdict(dict)
-    solution = {}
-
-    # print("%r"%rooms)
-    for slot, options in timeslots.items():
-        for room, size in getRooms(options, rooms):
-            if not session_names:
-                # solution[slot][room] = None
-                break
-            else:
-                solution[session_names.pop()] = (slot, room) 
-
-    return solution
-
-def getRandomSolution(sessions, rooms, timeslots):
-    user_to_slot = defaultdict(set)
-    booked = defaultdict(list)
-    room_names = rooms.keys()
-    session_names = sessions.keys()
-    timeslot_names = timeslots.keys()
-    solution = {}
-
-    def getRandomTimeslotRoomForUsers(users):
-        blocked_timeslots = set()
-        for user in users:
-            blocked_timeslots = blocked_timeslots.union(user_to_slot[user])
-        slots_to_choose_from = list(set(timeslot_names) - blocked_timeslots)
-        if not slots_to_choose_from:
-            # This set of users cannot give a talk together
-            # We don't want to stop the building process yet
-            # so we just return None, None
-            return None, None
-        timeslot_name = random.choice(slots_to_choose_from)
-        room_name = room_names[len(booked[timeslot_name])]
-        booked[timeslot_name].append(room_name)
-        if len(booked[timeslot_name]) == len(room_names):
-            # clean up, we cannot use this time slot anylonger
-            timeslot_names.remove(timeslot_name)
-        return timeslot_name, room_name
-
-    while session_names:
-        session_name = session_names.pop(
-            random.randrange(0,len(session_names))
-        )
-        users = sessions[session_name]
-        try:
-            solution[session_name] = getRandomTimeslotRoomForUsers(users)
-        except IndexError as e:
-            # we have more sessions than timeslots
-            break
-    return solution
 
 def getRank(solution, desires):
     points = 0
     # it does not seem to be faster this way :P
     # pointlist = [8,7,6,5,4,3,2,1] + [1]*100
-    for user, sessions in desires.iteritems():
+    for user, sessions in desires.items():
         blocked_timeslots = []
         for session, point in zip(sessions, #pointlist 
             [8,7,6,5,4,3,2,1] + [1]*max(0,len(sessions)-8) # points for sessions even if you have more than 8
@@ -113,7 +57,7 @@ def getRank(solution, desires):
 
 def printTimetable(solution):
     timeslots = defaultdict(list)
-    for session, (timeslot, room) in solution.iteritems():
+    for session, (timeslot, room) in solution.items():
         timeslots[timeslot].append((room, session))
     for timeslot in sorted(timeslots.keys()):
         print("%s:" % timeslot)
@@ -126,16 +70,14 @@ def main(args):
     desires = load(args["--desires"])
     rooms = load(args["--rooms"])
     timeslots = load(args["--time-slots"])
-    iterations = int(args['--iterations'])
-    best_solution = getRandomSolution(sessions, rooms, timeslots)
     #use simulated annealing
     #https://en.wikipedia.org/wiki/Simulated_annealing
     # possibly not usefull
 
     cmp_func = functools.partial(getRank, desires=desires)
-    for i in range(iterations):
-        solution = getRandomSolution(sessions, rooms, timeslots)
-        best_solution = max(best_solution, solution, key=cmp_func)
+
+    solver = RandomSolver(cmp_func)
+    best_solution = solver.solve(sessions, rooms, timeslots, args=args)
     printTimetable(best_solution)
 
 
