@@ -1,7 +1,7 @@
 from . import BasicSolver
 from collections import defaultdict
 import random
-
+from clint.textui import progress
 
 class RandomSolver(BasicSolver):
     def getRandomSolution(self, sessions, rooms, timeslots):
@@ -47,7 +47,7 @@ class RandomSolver(BasicSolver):
             args = {}
         iterations = int(args.get('--iterations', 10000))
         best_solution = self.getRandomSolution(sessions, rooms, timeslots)
-        for i in range(iterations):
+        for i in progress.bar(range(iterations)):
             solution = self.getRandomSolution(sessions, rooms, timeslots)
             best_solution = max(best_solution, solution, key=self.get_rank)
         return best_solution
