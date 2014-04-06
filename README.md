@@ -8,7 +8,8 @@ Requirements
 ------------
 
 * docopt
-* pyYAML (if you run it with pypy)
+* pyYAML
+* clint
 
 Usage
 -----

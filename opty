@@ -32,7 +32,8 @@ from docopt import docopt
 from collections import defaultdict
 import yaml
 import functools
-from solvers.random_solver import RandomSolver
+# from solvers.random_solver import RandomSolver
+from solvers import get_solver_by_name
 
 def load(filename):
     with open(filename) as fh:
@@ -76,7 +77,7 @@ def main(args):
 
     cmp_func = functools.partial(getRank, desires=desires)
 
-    solver = RandomSolver(cmp_func)
+    solver = get_solver_by_name("random")(cmp_func)
     best_solution = solver.solve(sessions, rooms, timeslots, args=args)
     printTimetable(best_solution)
 

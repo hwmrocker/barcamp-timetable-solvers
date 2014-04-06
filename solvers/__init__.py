@@ -1,7 +1,8 @@
+from .random_solver import RandomSolver
 
-class BasicSolver(object):
-    def __init__(self, cmp_func):
-        self.get_rank = cmp_func
+_name_to_solver_dict = {
+    "random": RandomSolver
+}
 
-    def solve(self, sessions, rooms, timeslots, args=None):
-        raise NotImplemented("You need to implemt the solve function before you use it")
+def get_solver_by_name(name):
+    return _name_to_solver_dict[name]
