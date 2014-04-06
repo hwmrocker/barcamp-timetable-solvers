@@ -18,15 +18,13 @@ Options:
                         path to a yaml file containing room definitions
                         [default: rooms.yaml]
     -t TIMESLOTS, --time-slots TIMESLOTS
-                        path to a yaml file containing time slots 
+                        path to a yaml file containing time slots
                         informations
                         [default: timeslots.yaml]
     -i ITERATIONS, --iterations ITERATIONS
                         Number of iterations to guess a good solution
                         [default: 100000]
 """
-
-#TODO accept more than one speaker
 
 from docopt import docopt
 from collections import defaultdict
@@ -35,6 +33,7 @@ import functools
 # from solvers.random_solver import RandomSolver
 from solvers import get_solver_by_name
 
+
 def load(filename):
     with open(filename) as fh:
         return yaml.load(fh)
@@ -42,19 +41,19 @@ def load(filename):
 
 def getRank(solution, desires):
     points = 0
-    # it does not seem to be faster this way :P
-    # pointlist = [8,7,6,5,4,3,2,1] + [1]*100
     for user, sessions in desires.items():
         blocked_timeslots = []
-        for session, point in zip(sessions, #pointlist 
-            [8,7,6,5,4,3,2,1] + [1]*max(0,len(sessions)-8) # points for sessions even if you have more than 8
+        for session, point in zip(sessions,
+            # points for sessions even if you have more than 8
+            [8, 7, 6, 5, 4, 3, 2, 1] + [1] * max(0, len(sessions) - 8)
         ):
             slot, room = solution[session]
             if slot not in blocked_timeslots:
                 blocked_timeslots.append(slot)
-                points += point   
+                points += point
 
     return points
+
 
 def printTimetable(solution):
     timeslots = defaultdict(list)
@@ -65,6 +64,7 @@ def printTimetable(solution):
         for room, session in sorted(timeslots[timeslot]):
             print("   %s: %s" % (room, session))
         print("")
+
 
 def main(args):
     sessions = load(args["--sessions"])

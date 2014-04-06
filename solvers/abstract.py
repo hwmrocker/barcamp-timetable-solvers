@@ -1,13 +1,15 @@
 from collections import defaultdict
 import random
 
+
 class BasicSolver(object):
     """BasicSolver is a basic "abstract" like class, that defines the interface"""
 
     def __init__(self, cmp_func):
         self.get_rank = cmp_func
 
-    def getRandomSolution(self, sessions, rooms, timeslots):
+    def get_random_solution(self, sessions, rooms, timeslots):
+        """"""
         user_to_slot = defaultdict(set)
         booked = defaultdict(list)
         room_names = list(rooms.keys())
@@ -15,7 +17,7 @@ class BasicSolver(object):
         timeslot_names = list(timeslots.keys())
         solution = {}
 
-        def getRandomTimeslotRoomForUsers(users):
+        def get_random_timeslot_room_for_users(users):
             blocked_timeslots = set()
             for user in users:
                 blocked_timeslots = blocked_timeslots.union(user_to_slot[user])
@@ -35,12 +37,12 @@ class BasicSolver(object):
 
         while session_names:
             session_name = session_names.pop(
-                random.randrange(0,len(session_names))
+                random.randrange(0, len(session_names))
             )
             users = sessions[session_name]
             try:
-                solution[session_name] = getRandomTimeslotRoomForUsers(users)
-            except IndexError as e:
+                solution[session_name] = get_random_timeslot_room_for_users(users)
+            except IndexError:
                 # we have more sessions than timeslots
                 break
         return solution
