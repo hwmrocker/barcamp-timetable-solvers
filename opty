@@ -26,11 +26,10 @@ Options:
                         [default: 100000]
 """
 
-from docopt import docopt
-from collections import defaultdict
-import yaml
 import functools
-# from solvers.random_solver import RandomSolver
+import yaml
+from collections import defaultdict
+from docopt import docopt
 from solvers import get_solver_by_name
 
 
