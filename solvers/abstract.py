@@ -11,7 +11,7 @@ class BasicSolver(object):
     def solve(self, sessions, rooms, timeslots, args=None):
         """solve(self, sessions, rooms, timeslots, args=None)
 
-        sessions        is a dict where the keys are the session names and the
+        sessions        is a dict where the keys are the session names 
                         and the values are lists of the session host.
                         {"session1": ["host1", "host2"], "session2": ["host1"]}
 
