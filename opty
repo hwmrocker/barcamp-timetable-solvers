@@ -2,7 +2,8 @@
 """opty
 
 Usage:
-    opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS]
+    opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS] [--tournament]
+    opty tournament [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS]
 
 Options:
     -s SESSIONS, --sessions SESSIONS
@@ -24,13 +25,15 @@ Options:
     -i ITERATIONS, --iterations ITERATIONS
                         Number of iterations to guess a good solution
                         [default: 100000]
+    --tournament
+                        Run a tournament with all known solvers.
 """
 
 import functools
 import yaml
 from collections import defaultdict
 from docopt import docopt
-from solvers import get_solver_by_name
+from solvers import get_solver_by_name, all_solver_names
 
 
 def load(filename):
@@ -70,15 +73,56 @@ def main(args):
     desires = load(args["--desires"])
     rooms = load(args["--rooms"])
     timeslots = load(args["--time-slots"])
+    tournament = args["tournament"]
+
+    cmp_func = functools.partial(getRank, desires=desires)
+    
+    if tournament:
+        print("")
+        print("            THE GAME IS ON!!!!")
+        print("  THE CHALLENGE RUNS BETWEEN {:2} SOLVERS".format(len(all_solver_names())))
+        print("")
+        
+        solver_names = all_solver_names()
+        first_solver_name = solver_names.pop()
+        print("AND THE FIRST CHALLENGER IS: Sir {}".format(first_solver_name))
+        
+        best_solver_name = first_solver_name
+        best_solution = get_solver_by_name(first_solver_name)(cmp_func).solve(sessions, rooms, timeslots, args=args)
+        best_score = cmp_func(best_solution)
+        print("  he bats an awesome score of {}".format(best_score))
+        
+        for index, solver_name in enumerate(solver_names):
+            print("\nAND THE {}. CHALLENGER IS: Sir {}".format(index+2, solver_name))
+            solution = get_solver_by_name(solver_name)(cmp_func).solve(sessions, rooms, timeslots, args=args)
+            score = cmp_func(solution)
+            print("  with a great score of {}".format(score))
+            
+            
+            if best_score < score:
+                print("  THE WINNER IS: Sir {}".format(solver_name))
+                best_solution = solution
+                best_solver_name = solver_name
+                best_score = score
+            else:
+                print("  THE CHAMPION IS UNBEATEN!")
+            
+        print("")
+        print("THE TOURNAMENT IS OVER!")
+        print("A NEW KING HAS BEEN CROWNED")
+        print("ALL HAIL King _{}_".format(best_solver_name))
+        
+    else:
+        solver = get_solver_by_name("random")(cmp_func)
+        best_solution = solver.solve(sessions, rooms, timeslots, args=args)
+        printTimetable(best_solution)
+    
+    
     #use simulated annealing
     #https://en.wikipedia.org/wiki/Simulated_annealing
     # possibly not usefull
 
-    cmp_func = functools.partial(getRank, desires=desires)
 
-    solver = get_solver_by_name("random")(cmp_func)
-    best_solution = solver.solve(sessions, rooms, timeslots, args=args)
-    printTimetable(best_solution)
 
 
 if __name__ == "__main__":
