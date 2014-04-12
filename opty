@@ -129,7 +129,7 @@ def main(args):
         solver = get_solver_by_name(solver)(sessions, rooms, timeslots, cmp_func, desires)
         best_solution = solver.solve(args=args)
         print("Points: ", cmp_func(best_solution))
-        printTimetable(best_solution)
+        # printTimetable(best_solution)
 
 
     # use simulated annealing

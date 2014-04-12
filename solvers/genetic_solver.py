@@ -4,11 +4,12 @@ from clint.textui import progress
 
 
 class Darwin(BasicSolver):
+    """a genetic modified version of RandomWalkWithRandomRestartSolver"""
 
-    """a modification of RandomWalkWithRandomRestartSolver"""
-
-    RESTARTS = 100
-    STEPS_PER_RESTART = 1000
+    INITIAL_BREED = 5
+    NUMBER_OF_SOLUTIONS_TO_KEEP = 5
+    NUMBER_OF_MUTATIONS = 5
+    CHANGE_WORST = 5
 
     def mutate(self, solution):
         """Modify the solution by swapping two timeslots.
@@ -17,9 +18,9 @@ class Darwin(BasicSolver):
         """
         solutions = [solution.copy()]
         # k1 = self.get_most_missed_sessions(solution)[0][0]
-        for k1, _ in self.get_most_missed_sessions(solution)[:5]:
+        for k1, _ in self.get_most_missed_sessions(solution)[:self.CHANGE_WORST]:
         # k1 = random.choice(solution.keys())
-            for _ in range(5):
+            for _ in range(self.NUMBER_OF_MUTATIONS):
                 k2 = k1
                 while k2 == k1:
                     k2 = random.choice(solution.keys())
@@ -41,7 +42,9 @@ class Darwin(BasicSolver):
         if args is None:
             args = {}
         iterations = int(args.get('--iterations')) / 1000
-        best_solutions = [self.get_random_solution() for _ in range(5)]
+        breed = [self.get_random_solution() for _ in range(self.INITIAL_BREED)]
+        best_solutions = sorted(breed, key=self.get_rank,
+            reverse=True)[:self.NUMBER_OF_SOLUTIONS_TO_KEEP]
         best_solution = max(*best_solutions, key=self.get_rank)
 
         for i in progress.bar(range(iterations)):
@@ -49,7 +52,43 @@ class Darwin(BasicSolver):
             for solution in best_solutions:
                 breed.extend(self.mutate(solution))
 
+            best_solutions = sorted(breed, key=self.get_rank,
+                reverse=True)[:self.NUMBER_OF_SOLUTIONS_TO_KEEP]
             best_solution = max(*best_solutions, key=self.get_rank)
-            best_solutions = sorted(breed, key=self.get_rank, reverse=True)[:5]
 
         return best_solution
+
+
+class Darwin1(Darwin):
+    INITIAL_BREED = 100
+    NUMBER_OF_SOLUTIONS_TO_KEEP = 5
+    NUMBER_OF_MUTATIONS = 5
+    CHANGE_WORST = 5
+
+
+class Darwin2(Darwin):
+    INITIAL_BREED = 50
+    NUMBER_OF_SOLUTIONS_TO_KEEP = 5
+    NUMBER_OF_MUTATIONS = 10
+    CHANGE_WORST = 5
+
+
+class Darwin3(Darwin):
+    INITIAL_BREED = 50
+    NUMBER_OF_SOLUTIONS_TO_KEEP = 5
+    NUMBER_OF_MUTATIONS = 5
+    CHANGE_WORST = 10
+
+
+class Darwin4(Darwin):
+    INITIAL_BREED = 150
+    NUMBER_OF_SOLUTIONS_TO_KEEP = 15
+    NUMBER_OF_MUTATIONS = 15
+    CHANGE_WORST = 15
+
+
+class Darwin5(Darwin):
+    INITIAL_BREED = 150
+    NUMBER_OF_SOLUTIONS_TO_KEEP = 15
+    NUMBER_OF_MUTATIONS = 15
+    CHANGE_WORST = 10
