@@ -19,11 +19,11 @@ class Darwin(BasicSolver):
         solutions = [solution.copy()]
         # k1 = self.get_most_missed_sessions(solution)[0][0]
         for k1, _ in self.get_most_missed_sessions(solution)[:self.CHANGE_WORST]:
-        # k1 = random.choice(solution.keys())
+        # k1 = random.choice(list(solution.keys()))
             for _ in range(self.NUMBER_OF_MUTATIONS):
                 k2 = k1
                 while k2 == k1:
-                    k2 = random.choice(solution.keys())
+                    k2 = random.choice(list(solution.keys()))
 
                 v1 = solution[k1]
                 v2 = solution[k2]
@@ -41,7 +41,7 @@ class Darwin(BasicSolver):
     def solve(self, args=None):
         if args is None:
             args = {}
-        iterations = int(args.get('--iterations')) / 1000
+        iterations = int(args.get('--iterations')) // 1000
         breed = [self.get_random_solution() for _ in range(self.INITIAL_BREED)]
         best_solutions = sorted(breed, key=self.get_rank,
             reverse=True)[:self.NUMBER_OF_SOLUTIONS_TO_KEEP]

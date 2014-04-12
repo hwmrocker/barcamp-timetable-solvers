@@ -1,6 +1,6 @@
-from .random_solver import RandomSolver
-from .random_solver import RandomWalkWithRandomRestartSolver
-from .random_solver import HillClimber
+# from .random_solver import RandomSolver
+# from .random_solver import RandomWalkWithRandomRestartSolver
+# from .random_solver import HillClimber
 from .genetic_solver import Darwin, Darwin1, Darwin2, Darwin3, Darwin4, Darwin5
 
 _name_to_solver_dict = {
@@ -21,4 +21,4 @@ def get_solver_by_name(name):
 
 
 def all_solver_names():
-    return _name_to_solver_dict.keys()
+    return list(_name_to_solver_dict.keys())
