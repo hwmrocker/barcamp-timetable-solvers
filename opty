@@ -2,10 +2,16 @@
 """opty
 
 Usage:
-    opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS] [--tournament]
+    opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS] [-S SOLVER]
     opty tournament [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS]
+    opty -l
 
 Options:
+    -S SOLVER, --solver SOLVER
+                        uses a given solver. Use --list-solvers to display
+                        all possible solver names.
+                        [default: random]
+    -l, --list-solvers  print all possible solver names and quit.
     -s SESSIONS, --sessions SESSIONS
                         path to a yaml file containing a mapping of
                         session names to a list of speaker
@@ -74,9 +80,14 @@ def main(args):
     rooms = load(args["--rooms"])
     timeslots = load(args["--time-slots"])
     tournament = args["tournament"]
+    solver = args["--solver"]
 
     cmp_func = functools.partial(getRank, desires=desires)
 
+    if args["--list-solvers"]:
+        for solver_name in all_solver_names():
+            print(solver_name)
+        return
     if tournament:
         print("")
         print("            THE GAME IS ON!!!!")
@@ -89,7 +100,7 @@ def main(args):
 
         best_solver_name = first_solver_name
         best_solution = get_solver_by_name(first_solver_name)(
-            sessions, rooms, timeslots, cmp_func).solve(args=args)
+            sessions, rooms, timeslots, cmp_func, desires).solve(args=args)
         best_score = cmp_func(best_solution)
         print("  he bats an awesome score of {}".format(best_score))
 
@@ -97,7 +108,7 @@ def main(args):
             print("")
             print("AND THE {}. CHALLENGER IS: Sir {}".format(index, solver_name))
             solution = get_solver_by_name(solver_name)(
-                sessions, rooms, timeslots, cmp_func).solve(args=args)
+                sessions, rooms, timeslots, cmp_func, desires).solve(args=args)
             score = cmp_func(solution)
             print("  with a great score of {}".format(score))
 
@@ -115,8 +126,9 @@ def main(args):
         print("ALL HAIL King _{}_".format(best_solver_name))
 
     else:
-        solver = get_solver_by_name("random")(sessions, rooms, timeslots, cmp_func)
+        solver = get_solver_by_name(solver)(sessions, rooms, timeslots, cmp_func, desires)
         best_solution = solver.solve(args=args)
+        print("Points: ", cmp_func(best_solution))
         printTimetable(best_solution)
 
 

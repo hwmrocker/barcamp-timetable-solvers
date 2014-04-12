@@ -5,14 +5,17 @@ import random
 class BasicSolver(object):
     """BasicSolver is a basic "abstract" like class, that defines the interface"""
 
-    def __init__(self, sessions, rooms, timeslots, cmp_func, desires=None):
+    def __init__(self, sessions, rooms, timeslots, cmp_func, desires):
         self.get_rank = cmp_func
         self.desires = desires
+        self.rooms = rooms
+        self.sessions = sessions
+        self.timeslots = timeslots
 
     def solve(self, args=None):
         """solve(self, sessions, rooms, timeslots, args=None)
 
-        sessions        is a dict where the keys are the session names 
+        sessions        is a dict where the keys are the session names
                         and the values are lists of the session host.
                         {"session1": ["host1", "host2"], "session2": ["host1"]}
 
@@ -99,7 +102,6 @@ class BasicSolver(object):
         but would miss it with the current solution"""
 
         missed_sessions = []
-        points = 0
         for user, sessions in self.desires.items():
             blocked_timeslots = []
             for session, point in zip(sessions,
@@ -112,7 +114,7 @@ class BasicSolver(object):
                     blocked_timeslots.append(slot)
                 else:
                     missed_sessions.append(session)
-        
+
         miss_counter = Counter(missed_sessions)
 
         return miss_counter.most_common()
