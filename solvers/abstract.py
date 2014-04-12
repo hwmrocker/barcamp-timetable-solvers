@@ -1,14 +1,15 @@
-from collections import defaultdict
+from collections import defaultdict, Counter
 import random
 
 
 class BasicSolver(object):
     """BasicSolver is a basic "abstract" like class, that defines the interface"""
 
-    def __init__(self, cmp_func):
+    def __init__(self, sessions, rooms, timeslots, cmp_func, desires=None):
         self.get_rank = cmp_func
+        self.desires = desires
 
-    def solve(self, sessions, rooms, timeslots, args=None):
+    def solve(self, args=None):
         """solve(self, sessions, rooms, timeslots, args=None)
 
         sessions        is a dict where the keys are the session names 
@@ -46,24 +47,21 @@ class BasicSolver(object):
         """
         raise NotImplemented("You need to implemt the solve function before you use it")
 
-    def get_random_solution(self, sessions, rooms, timeslots):
-        """get_random_solution(self, sessions, rooms, timeslots)
+    def get_random_solution(self):
+        """get_random_solution(self)
 
         Helper function that returns a random solution for a timetable.
         It is guaranteed that there are not two talks by the same person
         in the same timeslot. But it is not guaranteed that one person is
         able to present all of his talks.
 
-        The parameters session, rooms, and timeslots should have the same
-        internal structure like, those you get from the solve function.
-
         returns a solution
         """
         user_to_slot = defaultdict(set)
         booked = defaultdict(list)
-        room_names = list(rooms.keys())
-        session_names = list(sessions.keys())
-        timeslot_names = list(timeslots.keys())
+        room_names = list(self.rooms.keys())
+        session_names = list(self.sessions.keys())
+        timeslot_names = list(self.timeslots.keys())
         solution = {}
 
         def get_random_timeslot_room_for_users(users):
@@ -88,10 +86,33 @@ class BasicSolver(object):
             session_name = session_names.pop(
                 random.randrange(0, len(session_names))
             )
-            users = sessions[session_name]
+            users = self.sessions[session_name]
             try:
                 solution[session_name] = get_random_timeslot_room_for_users(users)
             except IndexError:
                 # we have more sessions than timeslots
                 break
         return solution
+
+    def get_most_missed_sessions(self, solution):
+        """returns a list sessions sorted the amount of people who want to attend
+        but would miss it with the current solution"""
+
+        missed_sessions = []
+        points = 0
+        for user, sessions in self.desires.items():
+            blocked_timeslots = []
+            for session, point in zip(sessions,
+                # we ignore each miss after the timeslots
+                # TODO FIXME make this variable for number of timeslots
+                [8, 7, 6, 5, 4, 3, 2, 1]
+            ):
+                slot, room = solution[session]
+                if slot not in blocked_timeslots:
+                    blocked_timeslots.append(slot)
+                else:
+                    missed_sessions.append(session)
+        
+        miss_counter = Counter(missed_sessions)
+
+        return miss_counter.most_common()

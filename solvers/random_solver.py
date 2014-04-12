@@ -5,13 +5,13 @@ from clint.textui import progress
 
 
 class RandomSolver(BasicSolver):
-    def solve(self, sessions, rooms, timeslots, args=None):
+    def solve(self, args=None):
         if args is None:
             args = {}
         iterations = int(args.get('--iterations', 100000))
-        best_solution = self.get_random_solution(sessions, rooms, timeslots)
+        best_solution = self.get_random_solution()
         for i in progress.bar(range(iterations)):
-            solution = self.get_random_solution(sessions, rooms, timeslots)
+            solution = self.get_random_solution()
             best_solution = max(best_solution, solution, key=self.get_rank)
         return best_solution
 
@@ -38,11 +38,6 @@ class RandomWalkWithRandomRestartSolver(BasicSolver):
             
         v1 = solution[k1]
         v2 = solution[k2]
-
-
-        #print("swapping {k1} -> {k2} ({v1} -> {v2})".format(
-        #    k1=k1, k2=k2, v1=v1, v2=v2
-        #))
         
         solution[k1] = v2
         solution[k2] = v1
@@ -61,14 +56,36 @@ class RandomWalkWithRandomRestartSolver(BasicSolver):
         return method(self, newsol)
         
     
-    def solve(self, sessions, rooms, timeslots, args=None):
+    def solve(self, args=None):
         if args is None:
             args = {}
-        iterations = int(args.get('--iterations')) / 100
-        best_solution = self.get_random_solution(sessions, rooms, timeslots)
+        iterations = int(args.get('--iterations')) / 1000
+        best_solution = self.get_random_solution()
         for i in progress.bar(range(iterations)):
-            solution = self.get_random_solution(sessions, rooms, timeslots)
+            solution = self.get_random_solution()
             for j in xrange(self.STEPS_PER_RESTART):
                 solution = self.modify(solution)
                 best_solution = max(best_solution, solution, key=self.get_rank)
         return best_solution
+
+
+class HillClimber(RandomWalkWithRandomRestartSolver):
+
+    def modify_swap(self, solution):
+        """Modify the solution by swapping two timeslots.
+        
+        Just swap the session where the most people will miss it.
+        """
+        
+        k1 = self.get_most_missed_sessions(solution)[0][0]
+        k2 = k1
+        while k2 == k1:
+            k2 = random.choice(solution.keys())
+            
+        v1 = solution[k1]
+        v2 = solution[k2]
+        
+        solution[k1] = v2
+        solution[k2] = v1
+        
+        return solution

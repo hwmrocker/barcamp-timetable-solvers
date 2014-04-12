@@ -88,13 +88,13 @@ def main(args):
         print("AND THE FIRST CHALLENGER IS: Sir {}".format(first_solver_name))
         
         best_solver_name = first_solver_name
-        best_solution = get_solver_by_name(first_solver_name)(cmp_func).solve(sessions, rooms, timeslots, args=args)
+        best_solution = get_solver_by_name(first_solver_name)(sessions, rooms, timeslots, cmp_func).solve(args=args)
         best_score = cmp_func(best_solution)
         print("  he bats an awesome score of {}".format(best_score))
         
-        for index, solver_name in enumerate(solver_names):
-            print("\nAND THE {}. CHALLENGER IS: Sir {}".format(index+2, solver_name))
-            solution = get_solver_by_name(solver_name)(cmp_func).solve(sessions, rooms, timeslots, args=args)
+        for index, solver_name in enumerate(solver_names, 2):
+            print("\nAND THE {}. CHALLENGER IS: Sir {}".format(index, solver_name))
+            solution = get_solver_by_name(solver_name)(sessions, rooms, timeslots, cmp_func).solve(args=args)
             score = cmp_func(solution)
             print("  with a great score of {}".format(score))
             
@@ -113,8 +113,8 @@ def main(args):
         print("ALL HAIL King _{}_".format(best_solver_name))
         
     else:
-        solver = get_solver_by_name("random")(cmp_func)
-        best_solution = solver.solve(sessions, rooms, timeslots, args=args)
+        solver = get_solver_by_name("random")(sessions, rooms, timeslots, cmp_func)
+        best_solution = solver.solve(args=args)
         printTimetable(best_solution)
     
     

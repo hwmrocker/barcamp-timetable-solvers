@@ -1,9 +1,11 @@
 from .random_solver import RandomSolver
 from .random_solver import RandomWalkWithRandomRestartSolver
+from .random_solver import HillClimber
 
 _name_to_solver_dict = {
     "random": RandomSolver,
     "rwrs": RandomWalkWithRandomRestartSolver,
+    "hill": HillClimber,
 }
 
 
