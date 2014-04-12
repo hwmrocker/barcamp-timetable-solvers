@@ -20,7 +20,7 @@ class RandomSolver(BasicSolver):
 class RandomWalkWithRandomRestartSolver(BasicSolver):
 
     """Do a random walk with occasional random restart.
-    
+
     Made by Johannes -- HAHA!
     """
 
@@ -33,10 +33,10 @@ class RandomWalkWithRandomRestartSolver(BasicSolver):
         Very simple because we don't have to check anything.
         """
 
-        k1 = random.choice(solution.keys())
+        k1 = random.choice(list(solution.keys()))
         k2 = k1
         while k2 == k1:
-            k2 = random.choice(solution.keys())
+            k2 = random.choice(list(solution.keys()))
 
         v1 = solution[k1]
         v2 = solution[k2]
@@ -59,7 +59,7 @@ class RandomWalkWithRandomRestartSolver(BasicSolver):
     def solve(self, args=None):
         if args is None:
             args = {}
-        iterations = int(args.get('--iterations')) / 1000
+        iterations = int(args.get('--iterations')) // 1000
         best_solution = self.get_random_solution()
         for i in progress.bar(range(iterations)):
             solution = self.get_random_solution()
@@ -80,7 +80,7 @@ class HillClimber(RandomWalkWithRandomRestartSolver):
         k1 = self.get_most_missed_sessions(solution)[0][0]
         k2 = k1
         while k2 == k1:
-            k2 = random.choice(solution.keys())
+            k2 = random.choice(list(solution.keys()))
 
         v1 = solution[k1]
         v2 = solution[k2]
