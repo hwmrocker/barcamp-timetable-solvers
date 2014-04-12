@@ -1,11 +1,13 @@
 from .random_solver import RandomSolver
 from .random_solver import RandomWalkWithRandomRestartSolver
 from .random_solver import HillClimber
+from .genetic_solver import Darwin
 
 _name_to_solver_dict = {
     "random": RandomSolver,
     "rwrs": RandomWalkWithRandomRestartSolver,
     "hill": HillClimber,
+    "darwin": Darwin,
 }
 
 
