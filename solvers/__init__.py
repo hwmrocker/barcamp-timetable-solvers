@@ -1,12 +1,12 @@
-# from .random_solver import RandomSolver
-# from .random_solver import RandomWalkWithRandomRestartSolver
-# from .random_solver import HillClimber
+from .random_solver import RandomSolver
+from .random_solver import RandomWalkWithRandomRestartSolver
+from .random_solver import HillClimber
 from .genetic_solver import Darwin, Darwin1, Darwin2, Darwin3, Darwin4, Darwin5
 
 _name_to_solver_dict = {
-    # "random": RandomSolver,
-    # "rwrs": RandomWalkWithRandomRestartSolver,
-    # "hill": HillClimber,
+    "random": RandomSolver,
+    "rwrs": RandomWalkWithRandomRestartSolver,
+    "hill": HillClimber,
     "darwin": Darwin,
     "darwin1": Darwin1,
     "darwin2": Darwin2,

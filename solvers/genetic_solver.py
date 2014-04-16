@@ -47,7 +47,8 @@ class Darwin(BasicSolver):
             reverse=True)[:self.NUMBER_OF_SOLUTIONS_TO_KEEP]
         best_solution = max(*best_solutions, key=self.get_rank)
 
-        for i in progress.bar(range(iterations)):
+        # for i in progress.bar(range(iterations)):
+        for i in range(iterations):
             breed = []
             for solution in best_solutions:
                 breed.extend(self.mutate(solution))

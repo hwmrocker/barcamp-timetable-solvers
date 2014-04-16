@@ -4,6 +4,7 @@
 Usage:
     opty [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS] [-S SOLVER]
     opty tournament [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS]
+    opty test [-s SESSIONS] [-d DESIRES] [-r ROOMS] [-t TIMESLOTS] [-i ITERATIONS] [-S SOLVER]
     opty -l
 
 Options:
@@ -40,6 +41,7 @@ import yaml
 from collections import defaultdict
 from docopt import docopt
 from solvers import get_solver_by_name, all_solver_names
+from clint.textui import progress
 
 
 def load(filename):
@@ -80,7 +82,7 @@ def main(args):
     rooms = load(args["--rooms"])
     timeslots = load(args["--time-slots"])
     tournament = args["tournament"]
-    solver = args["--solver"]
+    solver_name = solver = args["--solver"]
 
     cmp_func = functools.partial(getRank, desires=desires)
 
@@ -88,7 +90,14 @@ def main(args):
         for solver_name in all_solver_names():
             print(solver_name)
         return
-    if tournament:
+    elif args["test"]:
+        SolverClass = get_solver_by_name(solver)
+        with open("%s.testresults" % solver_name, "w") as fh:
+            for _ in progress.bar(range(10000)):
+                solver = SolverClass(sessions, rooms, timeslots, cmp_func, desires)
+                fh.write("%d\n" % cmp_func(solver.solve(args=args)))
+        return
+    elif tournament:
         print("")
         print("            THE GAME IS ON!!!!")
         print("  THE CHALLENGE RUNS BETWEEN {:2} SOLVERS".format(len(all_solver_names())))
@@ -139,5 +148,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = docopt(__doc__, version="opty-0.1")
-    print(args)
+    # print(args)
     main(args)
