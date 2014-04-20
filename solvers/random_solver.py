@@ -1,7 +1,6 @@
 import random
 
 from .abstract import BasicSolver
-from clint.textui import progress
 
 
 class RandomSolver(BasicSolver):
@@ -15,7 +14,8 @@ class RandomSolver(BasicSolver):
         for i in range(iterations):
             solution = self.get_random_solution()
             best_solution = max(best_solution, solution, key=self.get_rank)
-        return best_solution
+            yield best_solution
+        # return best_solution
 
 
 class RandomWalkWithRandomRestartSolver(BasicSolver):
@@ -68,7 +68,8 @@ class RandomWalkWithRandomRestartSolver(BasicSolver):
             for j in xrange(self.STEPS_PER_RESTART):
                 solution = self.modify(solution)
                 best_solution = max(best_solution, solution, key=self.get_rank)
-        return best_solution
+                yield best_solution
+        # return best_solution
 
 
 class HillClimber(RandomWalkWithRandomRestartSolver):

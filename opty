@@ -75,6 +75,10 @@ def printTimetable(solution):
             print("   %s: %s" % (room, session))
         print("")
 
+def getBestSolution(iter, expected_iterations):
+    for solution in progress.bar(iter):
+        pass
+    return solution
 
 def main(args):
     sessions = load(args["--sessions"])
@@ -108,16 +112,20 @@ def main(args):
         print("AND THE FIRST CHALLENGER IS: Sir {}".format(first_solver_name))
 
         best_solver_name = first_solver_name
-        best_solution = get_solver_by_name(first_solver_name)(
+        iter_solver = get_solver_by_name(first_solver_name)(
             sessions, rooms, timeslots, cmp_func, desires).solve(args=args)
+        best_solution = max(progress.bar(iter_solver, expected_size=100000),
+            key=cmp_func)
         best_score = cmp_func(best_solution)
         print("  he bats an awesome score of {}".format(best_score))
 
         for index, solver_name in enumerate(solver_names, 2):
             print("")
             print("AND THE {}. CHALLENGER IS: Sir {}".format(index, solver_name))
-            solution = get_solver_by_name(solver_name)(
+            iter_solver = get_solver_by_name(solver_name)(
                 sessions, rooms, timeslots, cmp_func, desires).solve(args=args)
+            solution = max(progress.bar(iter_solver, expected_size=100000),
+            key=cmp_func)
             score = cmp_func(solution)
             print("  with a great score of {}".format(score))
 

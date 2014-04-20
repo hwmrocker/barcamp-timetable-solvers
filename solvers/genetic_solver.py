@@ -1,6 +1,5 @@
 import random
 from .abstract import BasicSolver
-from clint.textui import progress
 
 
 class Darwin(BasicSolver):
@@ -56,8 +55,9 @@ class Darwin(BasicSolver):
             best_solutions = sorted(breed, key=self.get_rank,
                 reverse=True)[:self.NUMBER_OF_SOLUTIONS_TO_KEEP]
             best_solution = max(*best_solutions, key=self.get_rank)
+            yield best_solution
 
-        return best_solution
+        # return best_solution
 
 
 class Darwin1(Darwin):
