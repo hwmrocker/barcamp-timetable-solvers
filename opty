@@ -38,6 +38,7 @@ Options:
 
 import functools
 import yaml
+import time
 from collections import defaultdict
 from docopt import docopt
 from solvers import get_solver_by_name, all_solver_names
@@ -75,10 +76,22 @@ def printTimetable(solution):
             print("   %s: %s" % (room, session))
         print("")
 
-def getBestSolution(iter, expected_iterations):
-    for solution in progress.bar(iter):
-        pass
+
+def solve_by_time(iter, seconds_to_compute):
+    now = time.time()
+    # until = now + seconds_to_compute
+    solution = next(iter)
+    # print(now, seconds_to_compute)
+    for idx in progress.bar(range(seconds_to_compute)):
+        # print()
+        foo = now + idx
+        if (time.time() > foo):
+            continue
+        while(time.time() <= foo):
+            # print (".")
+            solution = next(iter)
     return solution
+
 
 def main(args):
     sessions = load(args["--sessions"])
@@ -114,8 +127,10 @@ def main(args):
         best_solver_name = first_solver_name
         iter_solver = get_solver_by_name(first_solver_name)(
             sessions, rooms, timeslots, cmp_func, desires).solve(args=args)
-        best_solution = max(progress.bar(iter_solver, expected_size=100000),
-            key=cmp_func)
+        # best_solution = max(progress.bar(iter_solver, expected_size=100000),
+        #     key=cmp_func)
+        best_solution = solve_by_time(iter_solver, 60)
+
         best_score = cmp_func(best_solution)
         print("  he bats an awesome score of {}".format(best_score))
 
@@ -124,8 +139,9 @@ def main(args):
             print("AND THE {}. CHALLENGER IS: Sir {}".format(index, solver_name))
             iter_solver = get_solver_by_name(solver_name)(
                 sessions, rooms, timeslots, cmp_func, desires).solve(args=args)
-            solution = max(progress.bar(iter_solver, expected_size=100000),
-            key=cmp_func)
+            # solution = max(progress.bar(iter_solver, expected_size=100000),
+            # key=cmp_func)
+            solution = solve_by_time(iter_solver, 60)
             score = cmp_func(solution)
             print("  with a great score of {}".format(score))
 

@@ -11,7 +11,8 @@ class RandomSolver(BasicSolver):
         iterations = int(args.get('--iterations', 100000))
         best_solution = self.get_random_solution()
         # for i in progress.bar(range(iterations)):
-        for i in range(iterations):
+        # for i in range(iterations):
+        while True:
             solution = self.get_random_solution()
             best_solution = max(best_solution, solution, key=self.get_rank)
             yield best_solution
@@ -63,7 +64,8 @@ class RandomWalkWithRandomRestartSolver(BasicSolver):
         iterations = int(args.get('--iterations')) // 1000
         best_solution = self.get_random_solution()
         # for i in progress.bar(range(iterations)):
-        for i in range(iterations):
+        # for i in range(iterations):
+        while True:
             solution = self.get_random_solution()
             for j in xrange(self.STEPS_PER_RESTART):
                 solution = self.modify(solution)
