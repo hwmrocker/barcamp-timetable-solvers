@@ -73,7 +73,7 @@ def printTimetable(solution):
     for timeslot in sorted(timeslots.keys()):
         print("%s:" % timeslot)
         for room, session in sorted(timeslots[timeslot]):
-            print("   %s: %s" % (room, session))
+            print(f"   {room}: {session}")
         print("")
 
 
@@ -122,7 +122,7 @@ def main(args):
 
         solver_names = all_solver_names()
         first_solver_name = solver_names.pop()
-        print("AND THE FIRST CHALLENGER IS: Sir {}".format(first_solver_name))
+        print(f"AND THE FIRST CHALLENGER IS: Sir {first_solver_name}")
 
         best_solver_name = first_solver_name
         iter_solver = get_solver_by_name(first_solver_name)(
@@ -132,21 +132,21 @@ def main(args):
         best_solution = solve_by_time(iter_solver, 60)
 
         best_score = cmp_func(best_solution)
-        print("  he bats an awesome score of {}".format(best_score))
+        print(f"  he bats an awesome score of {best_score}")
 
         for index, solver_name in enumerate(solver_names, 2):
             print("")
-            print("AND THE {}. CHALLENGER IS: Sir {}".format(index, solver_name))
+            print(f"AND THE {index}. CHALLENGER IS: Sir {solver_name}")
             iter_solver = get_solver_by_name(solver_name)(
                 sessions, rooms, timeslots, cmp_func, desires).solve(args=args)
             # solution = max(progress.bar(iter_solver, expected_size=100000),
             # key=cmp_func)
             solution = solve_by_time(iter_solver, 60)
             score = cmp_func(solution)
-            print("  with a great score of {}".format(score))
+            print(f"  with a great score of {score}")
 
             if best_score < score:
-                print("  THE WINNER IS: Sir {}".format(solver_name))
+                print(f"  THE WINNER IS: Sir {solver_name}")
                 best_solution = solution
                 best_solver_name = solver_name
                 best_score = score
@@ -156,7 +156,7 @@ def main(args):
         print("")
         print("THE TOURNAMENT IS OVER!")
         print("A NEW KING HAS BEEN CROWNED")
-        print("ALL HAIL King _{}_".format(best_solver_name))
+        print(f"ALL HAIL King _{best_solver_name}_")
 
     else:
         solver = get_solver_by_name(solver)(sessions, rooms, timeslots, cmp_func, desires)
